@@ -1,0 +1,50 @@
+{
+  "application": {
+    "name": "your-app-name",
+    "repository": "your-repo"
+  },
+  "upload": [
+  ],
+  "environments": {
+    "defaults": {
+      "user": "deploy",
+      "branch": "master",
+      "use_sudo": false,
+      "ssh": {
+        "deploy_key_file": "<%= ENV['HOME'] %>/.ssh/servers_deploy_key",
+        "authorized_pub_file": "<%= ENV['HOME'] %>/.ssh/your_workstations_public_key.pub",
+        "known_hosts": "github.com,207.97.227.239 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==",
+        "options": {
+          "keys": "<%= ENV['HOME'] %>/.ssh/your_workstations_private_key"
+        }
+      }
+    },
+    "production": {
+      "rails_env": "production",
+      "database": {
+        "user": "production-db-user",
+        "host": "production-db-host"
+      },
+      "servers": [
+        {
+          "hostname": "some.fq.dn",
+          "roles": ["web", "app", "db"],
+          "primary": ["web", "app", "db"]
+        }
+      ]
+    }
+  },
+  "shared": {
+    "gems": [
+      { "name": "bundler" },
+      { "name": "chef", "version": ">=0.9.12" }
+    ],
+    "run_list": ["gems"]
+  },
+  "roles": {
+    "web": {},
+    "app": {},
+    "db": {}
+  }
+  // "deploy_recipe": "yourcustomdeployrecipe",
+}
