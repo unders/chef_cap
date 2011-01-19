@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/Casecommons/chef_cap"
   s.license     = "MIT"
   s.add_dependency('capistrano', '>= 2.5.5')
-  s.summary     = %q{chef_cap uses chef"s JSON config format to drive both capistrano and chef-solo"}
+  s.summary     = %q{capistrano + chef-solo == chef_cap"}
   s.description = %q{chef_cap uses chef"s JSON config format to drive both capistrano and chef-solo"}
 
   s.files         = `git ls-files`.split("\n")
