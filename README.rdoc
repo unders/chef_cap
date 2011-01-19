@@ -1,0 +1,49 @@
+= Chef Cap
+
+* http://github.com/casecommons/chef_cap/
+
+== DESCRIPTION
+
+capistrano + chef-solo == deployment + server automation
+
+Using chef's JSON configuration format to drive capistrano and chef-solo so you can use both to not only deploy your application but also completely automate the configuration of your servers.
+
+== INSTALL
+
+Add chef_cap to your Gemfile
+
+  group :development do
+    gem 'chef_cap'
+  end
+
+Then run:
+
+  $ bundle install
+
+=== Rails 3
+
+  $ rails generate chef_cap:install
+
+=== Rails 2
+
+Edit your Rakefile and add:
+
+  require 'chef_cap/tasks'
+
+Then run:
+
+  $ bundle exec rake chef_cap:install
+
+Which will overwrite your Capfile and create a chef directory with sample files unless one already exists.
+
+== REQUIREMENTS
+
+* Capistrano 2.x
+
+== LICENSE
+
+MIT
+
+== NOTICE
+
+Chef and chef-solo are © 2010 Opscode (http://www.opscode.com/)
