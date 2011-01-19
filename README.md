@@ -14,11 +14,18 @@ Add chef_cap to your gemfile:
       gem 'chef_cap'
     end
 
-## Install the gem and then initialize:
+## Install the gem and then initialize
+
+### Rails 2:
 
     $ bundle install
     $ test -e Capfile || bundle exec capify .
-    $ bundle exec rake chefcap:initialize
+    $ bundle exec rake chef_cap:install
+
+### Rails 3:
+
+    $ bundle install
+    $ rails generate chef_cap:install
 
 See the wiki for more detailed explanation of node.json and how it drives both capistrano and chef-solo.
 
