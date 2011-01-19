@@ -28,7 +28,9 @@ Then run:
 
 Edit your Rakefile and add:
 
-  require 'chef_cap/tasks'
+  require 'chef_cap/tasks' rescue nil
+
+(alternatively do not rescue nil and do not put chef_cap in the development group in your Gemfile)
 
 Then run:
 
