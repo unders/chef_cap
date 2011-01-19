@@ -12,7 +12,7 @@ namespace :chef_cap do
       puts "Already initialized chef_cap?"
     else
       FileUtils.mkdir_p(Rails.root + "chef")
-      FileUtils.cp_r Dir.glob(templates_path, "*")), (Rails.root + "chef")
+      FileUtils.cp_r Dir.glob(templates_path, "/*"), (Rails.root + "chef")
     end
   end
 end
