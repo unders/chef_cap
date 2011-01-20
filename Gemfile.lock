@@ -1,3 +1,9 @@
+PATH
+  remote: .
+  specs:
+    chef_cap (0.0.6)
+      capistrano (>= 2.5.5)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -32,6 +38,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  capistrano
+  chef_cap!
   rspec-rails (= 2.1)
   wirble
