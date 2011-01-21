@@ -1,0 +1,41 @@
+{
+  "application": {
+    "name": "your-app-name",
+    "repository": "your-repo"
+  },
+  "upload": [
+  ],
+  "environments": {
+    "defaults": {
+      "user": "deploy",
+      "branch": "master"
+    },
+    "production": {
+      "rails_env": "production",
+      "database": {
+        "user": "production-db-user",
+        "host": "production-db-host"
+      },
+      "servers": [
+        {
+          "hostname": "some.fq.dn",
+          "roles": ["web", "app", "db"],
+          "primary": ["web", "app", "db"]
+        }
+      ]
+    }
+  },
+  "shared": {
+    "gems": [
+      { "name": "bundler" },
+      { "name": "chef", "version": ">=0.9.12" }
+    ],
+    "run_list": ["gems"]
+  },
+  "roles": {
+    "web": {},
+    "app": {},
+    "db": {}
+  }
+  // "deploy_recipe": "yourcustomdeployrecipe",
+}

@@ -1,4 +1,4 @@
-require "chef_cap/version"
+require File.expand_path(File.join(File.dirname(__FILE__), "chef_cap/version"))
 
 module ChefCap
 
