@@ -123,4 +123,35 @@ describe ChefDnaParser do
       ChefCapHelper.intialize_primary_values(array_of_servers_hash).should == array_of_servers_hash
     end
   end
+
+  describe ".set_revision" do
+    ["rev", "tag", "revision"].each do |word|
+      [word, word.upcase, "-S#{word}"].each do |variable|
+        it "returns the value of ENV['#{variable}']" do
+          value = Time.now.to_f.to_s
+          ENV["#{variable}"] = value
+          ChefCapHelper.set_revision.should == value
+        end
+
+        after :each do
+          ENV["#{variable}"] = nil
+        end
+      end
+    end
+  end
+
+  describe ".set_branch" do
+    ["branch", "BRANCH", "-Sbranch"].each do |variable|
+      it "returns the value of ENV['#{variable}']" do
+        value = Time.now.to_f.to_s
+        ENV["#{variable}"] = value
+        ChefCapHelper.set_branch.should == value
+      end
+
+      after :each do
+        ENV["#{variable}"] = nil
+      end
+    end
+  end
+
 end

@@ -167,6 +167,7 @@ namespace :chef do
         env_settings.each { |k, v| ChefCapHelper.recursive_merge(json_to_modify["environment"] || {}, k, v) }
 
         json_to_modify["environment"]["revision"] = ChefCapHelper.set_revision if ChefCapHelper.has_revision?
+        json_to_modify["environment"]["branch"] = ChefCapHelper.set_branch if ChefCapHelper.has_branch?
         json_to_modify["environment"]["servers"] = ChefCapHelper.intialize_primary_values(json_to_modify["environment"]["servers"])
 
         should_not_deploy = no_deploy rescue false

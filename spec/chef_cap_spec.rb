@@ -785,6 +785,7 @@ describe "chef_cap" do
 
     it "shoves the value into the node json alongside branch" do
       ENV['rev'] = "123"
+      ENV['branch'] = "somebranch"
       chef_cap.stub!(:put => "stubbed")
       chef_cap.stub!(:upload => "stubbed")
       chef_cap.stub!(:sudo => "stubbed")
@@ -798,7 +799,7 @@ describe "chef_cap" do
            "something"=>"other", "foo"=>"bar",
            "chef"=>{"root"=>"path_to_cookbooks"},
            "run_list"=>nil, "shared"=>{"foo"=>"bar"},
-           "environment"=> {"revision"=>"123", "servers"=>[{"primary" => [], "hostname"=>"localhost", "roles"=>["role1", "role2"]}]}, "roles"=>{"role1"=>{"something"=>"other"}}}
+           "environment"=> {"revision"=>"123", "branch" => "somebranch", "servers"=>[{"primary" => [], "hostname"=>"localhost", "roles"=>["role1", "role2"]}]}, "roles"=>{"role1"=>{"something"=>"other"}}}
         )
       }
       chef_cap.cap_task["chef:deploy"].call

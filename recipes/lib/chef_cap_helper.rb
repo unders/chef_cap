@@ -49,7 +49,23 @@ class ChefCapHelper
     end
 
     def set_revision
-      ENV["rev"] || ENV["tag"] || ENV["REV"] || ENV["TAG"] || ENV["revision"] || ENV["REVISION"]
+      ["rev", "tag", "revision"].each do |word|
+        [word, word.upcase, "-S#{word}"].each do |variable|
+          return ENV[variable] if ENV[variable]
+        end
+      end
+      nil
+    end
+
+    def set_branch
+      ["branch", "BRANCH", "-Sbranch"].each do |variable|
+        return ENV[variable] if ENV[variable]
+      end
+      nil
+    end
+
+    def has_branch?
+      !set_branch.nil?
     end
 
     def has_revision?
