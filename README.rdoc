@@ -12,9 +12,7 @@ Using chef's JSON configuration format to drive capistrano and chef-solo so you 
 
 Add chef_cap to your Gemfile
 
-  group :development do
-    gem 'chef_cap'
-  end
+  gem 'chef_cap'
 
 Then run:
 
@@ -28,9 +26,7 @@ Then run:
 
 Edit your Rakefile and add:
 
-  require 'chef_cap/tasks' rescue nil
-
-(alternatively do not rescue nil and do not put chef_cap in the development group in your Gemfile)
+  require 'chef_cap/tasks'
 
 Then run:
 
