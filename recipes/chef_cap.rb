@@ -134,7 +134,9 @@ end
 namespace :chef do
   desc "Setup chef solo on the server(s)"
   task :setup do
-    sudo "rvm default exec gem specification --version '>=0.9.12' chef 2>&1 | awk 'BEGIN { s = 0 } /^name:/ { s = 1; exit }; END { if(s == 0) exit 1 }' || sudo rvm default exec gem install chef --no-ri --no-rdoc && echo 'Chef Solo already on this server.'"
+    gem_check_for_chef_cmd = "gem specification --version '>=0.9.12' chef 2>&1 | awk 'BEGIN { s = 0 } /^name:/ { s = 1; exit }; END { if(s == 0) exit 1 }'"
+    install_chef_cmd = "sudo rvm default exec gem install chef --no-ri --no-rdoc"
+    sudo "rvm default exec #{gem_check_for_chef_cmd} || #{install_chef_cmd} && echo 'Chef Solo already on this server.'"
     sudo "rvm default exec which chef-solo"
   end
 
