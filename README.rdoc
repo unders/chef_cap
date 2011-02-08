@@ -34,6 +34,24 @@ Then run:
 
 Which will overwrite your Capfile and create a chef directory with sample files unless one already exists.
 
+=== Tasks
+
+Remove all chef-cap files from /tmp
+
+  $ cap chef:cleanup
+
+Run chef-solo on the server(s)
+
+  $ cap chef:deploy
+
+Setup chef solo on the server(s)
+
+  $ cap chef:setup
+
+Run chef without deploy
+
+  $ cap cook
+
 == REQUIREMENTS
 
 * Capistrano 2.x
