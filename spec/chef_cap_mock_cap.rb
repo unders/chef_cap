@@ -13,10 +13,12 @@ end
 def find_servers(options = {})
   servers = []
   options[:roles].each do |role|
-    if @servers.has_key? role
+    if @servers && @servers.has_key?(role)
       @servers[role][:servers].each do |server|
         servers << TestCapServer.new(server)
       end
+    else
+      raise ArgumentError, "unknown role `#{role}'" unless roles.include?(role)
     end
   end
   servers

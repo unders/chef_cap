@@ -28,6 +28,7 @@ if ChefDnaParser.parsed["environments"]
     task environment.to_sym do
       set :environment_settings, environment_hash
       set :rails_env, environment_hash["rails_env"] || environment
+      set :role_order, environment_hash["role_order"] || {}
       default_environment["RAILS_ENV"] = rails_env
 
       ChefCapHelper.parse_hash(environment_hash)
@@ -182,12 +183,21 @@ namespace :chef do
   end
 
   task :run_chef_solo do
-    db = find_servers(:roles => [:db]).map(&:host)
-    app_and_web_only = find_servers(:roles => [:app, :web]).map(&:host) - db
-
+    raise "rails_env not defined yet!" unless defined?(rails_env)
     run_chef_solo = "env PATH=$PATH:/usr/sbin rvm default exec chef-solo -c /tmp/chef-cap-solo-#{rails_env}.rb -j /tmp/chef-cap-#{rails_env}-`hostname`.json #{ENV['DEBUG'] ? '-l debug' : ''}"
-    sudo(run_chef_solo, :hosts => db) if db.any?
-    sudo(run_chef_solo, :hosts => app_and_web_only) if app_and_web_only.any?
+
+    unless role_order.empty?
+      role_order.each do |role, dependent_roles|
+        role_hosts = find_servers(:roles => [role.to_sym]).map(&:host)
+        dependent_hosts = find_servers(:roles => dependent_roles.map(&:to_sym)).map(&:host) - role_hosts
+
+        sudo(run_chef_solo, :hosts => role_hosts) if role_hosts.any?
+        sudo(run_chef_solo, :hosts => dependent_hosts) if dependent_hosts.any?
+      end
+    else
+      sudo(run_chef_solo)
+    end
+
   end
 
   desc "Remove all chef-cap files from /tmp"
