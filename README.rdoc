@@ -38,19 +38,35 @@ Which will overwrite your Capfile and create a chef directory with sample files 
 
 Remove all chef-cap files from /tmp
 
-  $ cap chef:cleanup
+  $ cap <environment> chef:cleanup
 
 Run chef-solo on the server(s)
 
-  $ cap chef:deploy
+  $ cap <environment> chef:deploy
 
 Setup chef solo on the server(s)
 
-  $ cap chef:setup
+  $ cap <environment> chef:setup
 
 Run chef without deploy
 
-  $ cap cook
+  $ cap <environment> cook
+
+=== chef/node.json
+
+The following JSON keys are required in your node.json file:
+
+{ "application": { "name": NAME } }
+{ "application": { "repository": REPOSITORY } }
+{ "environments": { ENVIRONMENT: { "rails_env": RAILS_ENV } } }
+{ "roles": { ROLE: { "run_list": [] } } }
+{ "run_list": [] }
+
+Optional JSON keys:
+
+{ "environments": { ENVIRONMENT: { "role_order": { FIRST_ROLE: [OTHER_ROLES] } } } }
+{ "environments": { ENVIRONMENT: { "environment_settings": ENV_HASH } } }
+
 
 == REQUIREMENTS
 
