@@ -183,7 +183,6 @@ namespace :chef do
   end
 
   task :run_chef_solo do
-    raise "rails_env not defined yet!" unless defined?(rails_env)
     run_chef_solo = "env PATH=$PATH:/usr/sbin rvm default exec chef-solo -c /tmp/chef-cap-solo-#{rails_env}.rb -j /tmp/chef-cap-#{rails_env}-`hostname`.json #{ENV['DEBUG'] ? '-l debug' : ''}"
 
     unless role_order.empty?
