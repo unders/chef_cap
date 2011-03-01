@@ -6,6 +6,7 @@ class ChefCapHelper
 
     def parse_hash(hash, prefix = nil)
       hash.each do |key, value|
+        next if value.nil?
         if value.is_a? Hash
           parse_hash(value, [prefix, key].compact.join("_"))
         else

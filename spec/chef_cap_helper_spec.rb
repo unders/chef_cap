@@ -1,6 +1,53 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "spec_helper"))
 
-describe ChefDnaParser do
+describe ChefCapHelper do
+
+  describe ".parse_hash" do
+    before do
+      @configuration = mock
+      ChefCapConfiguration.configuration = @configuration
+    end
+
+    context "when given a hash with hashes" do
+
+      context "given a prefix" do
+        it "should call itself recursively" do
+          @configuration.should_receive(:set).with(:prefix_somehash_somekey, "somevalue")
+          ChefCapHelper.parse_hash({"somehash" => {"somekey" => "somevalue"}}, "prefix")
+        end
+      end
+
+      context "given no prefix" do
+        it "should call itself recursively" do
+          @configuration.should_receive(:set).with(:somehash_somekey, "somevalue")
+          ChefCapHelper.parse_hash({"somehash" => {"somekey" => "somevalue"}})
+        end
+      end
+    end
+
+    context "when given a hash with non-hashes" do
+
+      context "given a prefix" do
+        it "should set the key to prefix_key on the configuration" do
+          @configuration.should_receive(:set).with(:prefix_somekey, "somevalue")
+          ChefCapHelper.parse_hash({"somekey" => "somevalue"}, "prefix")
+        end
+      end
+
+      context "given no prefix" do
+
+        it "should set the key value pair on the configuration" do
+          @configuration.should_receive(:set).with(:somekey, "somevalue")
+          ChefCapHelper.parse_hash({"somekey" => "somevalue"})
+        end
+      end
+    end
+
+    it "should unset null values" do
+      @configuration.should_not_receive(:set)
+      ChefCapHelper.parse_hash({"somekey" => nil})
+    end
+  end
 
   describe ".recursive_merge" do
 
