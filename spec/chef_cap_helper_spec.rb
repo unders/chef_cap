@@ -44,6 +44,7 @@ describe ChefCapHelper do
     end
 
     it "should unset null values" do
+      @configuration.should_receive(:unset).with(:somekey, nil)
       @configuration.should_not_receive(:set)
       ChefCapHelper.parse_hash({"somekey" => nil})
     end
