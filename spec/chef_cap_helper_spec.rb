@@ -20,6 +20,8 @@ describe ChefDnaParser do
       resulting_hash["key"].should == ["value"]
       resulting_hash = ChefCapHelper.recursive_merge(original_hash, "key", {:key => :value})
       resulting_hash["key"].should == {:key => :value}
+      resulting_hash = ChefCapHelper.recursive_merge(original_hash, "key", nil)
+      resulting_hash["key"].should be_nil
     end
 
     it "uniquely merges the values of two arrays" do
@@ -41,6 +43,8 @@ describe ChefDnaParser do
 
       resulting_hash = ChefCapHelper.recursive_merge(original_hash, "key", {"one" => "nottwo"})
       resulting_hash["key"].should == { "one" => "nottwo" }
+      resulting_hash = ChefCapHelper.recursive_merge(original_hash, "key", {"one" => nil})
+      resulting_hash["key"].should == { "one" => nil }
     end
 
     it "merge will overwrite hashes with arrays" do

@@ -528,12 +528,14 @@ describe "chef_cap" do
               "four": "shouldbeoverwritten",
               "five": "stringtype"
             },
+            "somevalue": "shouldbeoverwrittenwithnull",
             "run_list": ["shared"]
           },
           "roles": {
             "role1": {
               "string": "overwritten",
               "simple": ["merged"],
+              "somevalue": null,
               "run_list": ["role1", "roleshared"]
             },
             "role2": {
@@ -569,11 +571,13 @@ describe "chef_cap" do
             server_session.things_that_were_set["node_hash_for_localhost"]["simple"].should == ["one", "two", "merged"]
             server_session.things_that_were_set["node_hash_for_localhost"]["complicated"].should == {"three"=>{"alsoshared"=>["merged"], "shared"=>"overwritten"}, "four"=>"overwritten", "five"=>["newtype"]}
             server_session.things_that_were_set["node_hash_for_localhost"]["string"].should == "overwritten"
+            server_session.things_that_were_set["node_hash_for_localhost"]["somevalue"].should be_nil
             server_session.things_that_were_set["node_hash_for_localhost"]["run_list"].should == ["everything", "shared", "role1", "roleshared", "role2"]
           elsif server_session.things_that_were_set.keys.include? "node_hash_for_otherhost"
             server_session.things_that_were_set["node_hash_for_otherhost"]["simple"].should == ["one", "two"]
             server_session.things_that_were_set["node_hash_for_otherhost"]["complicated"].should == {"three"=>{"alsoshared"=>["merged"], "shared"=>"overwritten"}, "four"=>"overwritten", "five"=>["newtype"]}
             server_session.things_that_were_set["node_hash_for_otherhost"]["string"].should == "shouldbeoverwritten"
+            server_session.things_that_were_set["node_hash_for_otherhost"]["somevalue"].should == "shouldbeoverwrittenwithnull"
             server_session.things_that_were_set["node_hash_for_otherhost"]["run_list"].should == ["everything", "shared", "role2", "roleshared"]
           end
         end
