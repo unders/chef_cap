@@ -15,7 +15,7 @@ class ChefCapHelper
             ChefCapConfiguration.configuration.set key, value
           else
             debug("Unsetting #{key.inspect} => #{value.inspect}")
-            ChefCapConfiguration.configuration.unset key, value
+            ChefCapConfiguration.configuration.unset key
           end
         end
       end
