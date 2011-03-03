@@ -79,6 +79,7 @@ ssh_options[:paranoid] = ssh_options_paranoid rescue nil
 ssh_options[:keys] = ssh_options_keys rescue nil
 ssh_options[:forward_agent] = ssh_options_forward_agent rescue nil
 ssh_options[:username] = ssh_options_username rescue user rescue nil
+ssh_options[:port] = ssh_options_port rescue nil
 
 if ChefDnaParser.parsed["upload"]
   uploads_for_roles = {}
