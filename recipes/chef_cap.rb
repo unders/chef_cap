@@ -43,6 +43,7 @@ if ChefDnaParser.parsed["environments"]
         end
       end
     end
+    after environment.to_sym, "ssh:set_options"
   end
 end
 

@@ -249,10 +249,14 @@ describe "chef_cap" do
         chef_cap.cap_ssh_options[:keys].should == "some_ssh_key_path"
       end
 
-
       it "adds a before ssh:transfer_keys hook to call ssh:set_options" do
         chef_cap.cap_before["ssh:transfer_keys"].should_not be_nil
         chef_cap.cap_before["ssh:transfer_keys"].should include("ssh:set_options")
+      end
+
+      it "adds a after <environment> hook to call ssh:set_options" do
+        chef_cap.cap_after[:nossh].should_not be_nil
+        chef_cap.cap_after[:nossh].should include("ssh:set_options")
       end
     end
 
