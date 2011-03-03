@@ -46,20 +46,18 @@ if ChefDnaParser.parsed["environments"]
   end
 end
 
-private_key = ssh_deploy_key_file rescue false
-public_key = ssh_authorized_pub_file rescue false
-known_hosts = ssh_known_hosts rescue false
-if private_key || public_key || known_hosts
-  private_key_remote_file = ".ssh/id_rsa"
-  if private_key
-    key_contents = File.read(private_key)
-    private_key_remote_file = ".ssh/id_dsa" if key_contents =~ /DSA/i
-  end
-
-
-  namespace :ssh do
-    desc "Transfer SSH keys to the remote server"
-    task :transfer_keys do
+namespace :ssh do
+  desc "Transfer SSH keys to the remote server"
+  task :transfer_keys do
+    private_key = ssh_deploy_key_file rescue false
+    public_key = ssh_authorized_pub_file rescue false
+    known_hosts = ssh_known_hosts rescue false
+    if private_key || public_key || known_hosts
+      private_key_remote_file = ".ssh/id_rsa"
+      if private_key
+        key_contents = File.read(private_key)
+        private_key_remote_file = ".ssh/id_dsa" if key_contents =~ /DSA/i
+      end
       run "mkdir -p ~/.ssh"
       if private_key
         put(File.read(private_key), private_key_remote_file, :mode => "0600")
@@ -67,19 +65,22 @@ if private_key || public_key || known_hosts
       put(File.read(public_key), ".ssh/authorized_keys", :mode => "0600") if public_key
       put(known_hosts, ".ssh/known_hosts", :mode => "0600") if known_hosts
     end
+    depend(:remote, :file, private_key_remote_file) if private_key
+    depend(:remote, :file, ".ssh/authorized_keys") if public_key
+    depend(:remote, :file, ".ssh/known_hosts") if known_hosts
   end
-  before "chef:setup", "ssh:transfer_keys"
 
-  depend(:remote, :file, private_key_remote_file) if private_key
-  depend(:remote, :file, ".ssh/authorized_keys") if public_key
-  depend(:remote, :file, ".ssh/known_hosts") if known_hosts
+  desc "Set any defined SSH options"
+  task :set_options do
+    ssh_options[:paranoid] = ssh_options_paranoid rescue nil
+    ssh_options[:keys] = ssh_options_keys rescue nil
+    ssh_options[:forward_agent] = ssh_options_forward_agent rescue nil
+    ssh_options[:username] = ssh_options_username rescue user rescue nil
+    ssh_options[:port] = ssh_options_port rescue nil
+  end
 end
-
-ssh_options[:paranoid] = ssh_options_paranoid rescue nil
-ssh_options[:keys] = ssh_options_keys rescue nil
-ssh_options[:forward_agent] = ssh_options_forward_agent rescue nil
-ssh_options[:username] = ssh_options_username rescue user rescue nil
-ssh_options[:port] = ssh_options_port rescue nil
+before "chef:setup", "ssh:transfer_keys"
+before "ssh:transfer_keys", "ssh:set_options"
 
 if ChefDnaParser.parsed["upload"]
   uploads_for_roles = {}
@@ -178,7 +179,7 @@ namespace :chef do
         set "node_hash_for_#{channel[:host].gsub(/\./, "_")}", json_to_modify
         put json_to_modify.to_json, "/tmp/chef-cap-#{rails_env}-#{channel[:host]}.json", :mode => "0600"
       end
-    end
+      end
 
     chef.run_chef_solo
   end

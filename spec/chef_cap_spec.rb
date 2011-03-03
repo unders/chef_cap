@@ -178,57 +178,96 @@ describe "chef_cap" do
                 "keys": "some_ssh_key_path"
               }
             }
+          },
+          "nossh": {
+            "ssh": {
+              "deploy_key_file": null
+            }
           }
         }
       }
       ERB
     end
 
-    it "parses out the deploy private key" do
-      chef_cap.cap_variable[:ssh_deploy_key_file].should_not be_nil
-      chef_cap.cap_variable[:ssh_deploy_key_file].should == File.join(File.dirname(__FILE__), '..', 'fixtures', 'ssh_deploy_key')
+    describe "ssh:transfer_keys" do
+      context "setting variables" do
+        before do
+          chef_cap.stub!(:put).and_return(true)
+          chef_cap.cap_task["ssh:transfer_keys"].call
+        end
+
+        it "parses out the deploy private key" do
+          chef_cap.cap_variable[:ssh_deploy_key_file].should_not be_nil
+          chef_cap.cap_variable[:ssh_deploy_key_file].should == File.join(File.dirname(__FILE__), '..', 'fixtures', 'ssh_deploy_key')
+        end
+
+        it "parses out the authorized public file" do
+          chef_cap.cap_variable[:ssh_authorized_pub_file].should_not be_nil
+          chef_cap.cap_variable[:ssh_authorized_pub_file].should == File.join(File.dirname(__FILE__), '..', 'fixtures', 'ssh_public_key')
+        end
+
+        it "parses out the known hosts file" do
+          chef_cap.cap_variable[:ssh_known_hosts].should_not be_nil
+          chef_cap.cap_variable[:ssh_known_hosts].should == "knownhostscontent"
+        end
+      end
+
+      it "creates a task that uploads the keys to the server users .ssh directory" do
+        chef_cap.cap_namespace[:ssh].should be_true
+        chef_cap.cap_task["ssh:transfer_keys"].should_not be_nil
+        chef_cap.should_receive(:put).with("dsa imaprivatekey", ".ssh/id_dsa", :mode => "0600").and_return(true)
+        chef_cap.should_receive(:put).with("imapublickey", ".ssh/authorized_keys", :mode => "0600").and_return(true)
+        chef_cap.should_receive(:put).with("knownhostscontent", ".ssh/known_hosts", :mode => "0600").and_return(true)
+
+        chef_cap.cap_task["ssh:transfer_keys"].call
+      end
+
+
+      it "adds a before chef:setup hook that that uploads the keys on every deploy" do
+        chef_cap.cap_before["chef:setup"].should_not be_nil
+        chef_cap.cap_before["chef:setup"].should include("ssh:transfer_keys")
+      end
+
+      it "adds dependencies on remote files for the ssh files to be uploaded" do
+        chef_cap.stub(:put).and_return(true)
+        chef_cap.cap_task["ssh:transfer_keys"].call
+        chef_cap.cap_depends[".ssh/id_dsa"].should_not be_nil
+        chef_cap.cap_depends[".ssh/id_dsa"].should == { :remote => :file }
+
+        chef_cap.cap_depends[".ssh/authorized_keys"].should_not be_nil
+        chef_cap.cap_depends[".ssh/authorized_keys"].should == { :remote => :file }
+
+        chef_cap.cap_depends[".ssh/known_hosts"].should_not be_nil
+        chef_cap.cap_depends[".ssh/known_hosts"].should == { :remote => :file }
+      end
     end
 
-    it "parses out the authorized public file" do
-      chef_cap.cap_variable[:ssh_authorized_pub_file].should_not be_nil
-      chef_cap.cap_variable[:ssh_authorized_pub_file].should == File.join(File.dirname(__FILE__), '..', 'fixtures', 'ssh_public_key')
-    end
-
-    it "parses out the known hosts file" do
-      chef_cap.cap_variable[:ssh_known_hosts].should_not be_nil
-      chef_cap.cap_variable[:ssh_known_hosts].should == "knownhostscontent"
-    end
-
-    it "creates a task that uploads the keys to the server users .ssh directory" do
-      chef_cap.cap_namespace[:ssh].should be_true
-      chef_cap.cap_task["ssh:transfer_keys"].should_not be_nil
-      chef_cap.should_receive(:put).with("dsa imaprivatekey", ".ssh/id_dsa", :mode => "0600").and_return(true)
-      chef_cap.should_receive(:put).with("imapublickey", ".ssh/authorized_keys", :mode => "0600").and_return(true)
-      chef_cap.should_receive(:put).with("knownhostscontent", ".ssh/known_hosts", :mode => "0600").and_return(true)
-
-      chef_cap.cap_task["ssh:transfer_keys"].call
-    end
-
-    it "adds a before chef:setup hook that that uploads the keys on every deploy" do
-      chef_cap.cap_before["chef:setup"].should_not be_nil
-      chef_cap.cap_before["chef:setup"].should include("ssh:transfer_keys")
-    end
-
-    it "adds dependencies on remote files for the ssh files to be uploaded" do
-      chef_cap.cap_depends[".ssh/id_dsa"].should_not be_nil
-      chef_cap.cap_depends[".ssh/id_dsa"].should == { :remote => :file }
-
-      chef_cap.cap_depends[".ssh/authorized_keys"].should_not be_nil
-      chef_cap.cap_depends[".ssh/authorized_keys"].should == { :remote => :file }
-
-      chef_cap.cap_depends[".ssh/known_hosts"].should_not be_nil
-      chef_cap.cap_depends[".ssh/known_hosts"].should == { :remote => :file }
-    end
-
-    describe "ssh_options" do
+    describe "ssh:set_options" do
       it "parses out keys" do
+        chef_cap.cap_task["ssh:set_options"].call
         chef_cap.cap_ssh_options[:keys].should_not be_nil
         chef_cap.cap_ssh_options[:keys].should == "some_ssh_key_path"
+      end
+
+
+      it "adds a before ssh:transfer_keys hook to call ssh:set_options" do
+        chef_cap.cap_before["ssh:transfer_keys"].should_not be_nil
+        chef_cap.cap_before["ssh:transfer_keys"].should include("ssh:set_options")
+      end
+    end
+
+    context "when a value is null" do
+      it "will be not be uploaded" do
+        chef_cap.cap_variable[:ssh_deploy_key_file].should_not be_nil
+        chef_cap.cap_task[:nossh].call
+        chef_cap.cap_variable[:ssh_deploy_key_file].should be_nil
+
+        chef_cap.should_not_receive(:put).with("dsa imaprivatekey", ".ssh/id_dsa", :mode => "0600")
+        chef_cap.should_receive(:put).with("imapublickey", ".ssh/authorized_keys", :mode => "0600").and_return(true)
+        chef_cap.should_receive(:put).with("knownhostscontent", ".ssh/known_hosts", :mode => "0600").and_return(true)
+
+        chef_cap.cap_task["ssh:transfer_keys"].call
+        chef_cap.cap_variable[:ssh_deploy_key_file].should be_nil
       end
     end
 

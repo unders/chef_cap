@@ -92,6 +92,13 @@ def cap_role
   @servers ||= {}
 end
 
+def unset(key)
+  @variables.delete(key)
+  self.instance_eval(<<-EOS)
+    undef #{key}
+  EOS
+end
+
 def set(key, value)
   key.to_s.gsub!(/\.|-/, '_')
   self.instance_eval(<<-EOS)
