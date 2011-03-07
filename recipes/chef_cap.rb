@@ -20,9 +20,13 @@ if ChefDnaParser.parsed["environments"]
     ChefCapHelper.parse_hash(environment_defaults)
   end
 
+  set :environments, {}
+
   ChefDnaParser.parsed["environments"].each_key do |environment|
     next if environment == "default"
     environment_hash = ChefDnaParser.parsed["environments"][environment]
+
+    set :environments, environments.merge(environment => environment_hash)
 
     desc "Set server roles for the #{environment} environment"
     task environment.to_sym do

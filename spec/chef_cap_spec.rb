@@ -79,6 +79,31 @@ describe "chef_cap" do
     chef_cap.cap_role[:db][:primary].should == "localhost"
   end
 
+  it "stores the environment settings in a capistrano variable" do
+    @test_dna = <<-JS
+      {
+        "chef": {
+          "root": "path_to_cookbooks"
+        },
+        "application": {
+          "name": "frobble",
+          "repository": "git@somehost:user/repo.git"
+        },
+        "environments": {
+          "defaults": {
+            "user": "myuser"
+          },
+          "some_env": {
+            "user": "newenvuser"
+          }
+        }
+      }
+    JS
+    chef_cap.cap_variable[:environments].should_not be_nil
+    chef_cap.cap_variable[:environments]["some_env"].should_not be_nil
+    chef_cap.cap_variable[:environments]["some_env"]["user"].should == "newenvuser"
+  end
+
   describe "default_environment" do
     it "sets the RAILS_ENV to rails_env" do
       @test_dna = <<-ERB
