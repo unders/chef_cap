@@ -190,7 +190,8 @@ namespace :chef do
   end
 
   task :run_chef_solo do
-    run_chef_solo = "env PATH=$PATH:/usr/sbin rvm default exec chef-solo -c /tmp/chef-cap-solo-#{rails_env}.rb -j /tmp/chef-cap-#{rails_env}-`hostname`.json #{ENV['DEBUG'] ? '-l debug' : ''}"
+    debug_flag = ENV['QUIET'] ? '' : '-l debug'
+    run_chef_solo = "env PATH=$PATH:/usr/sbin rvm default exec chef-solo -c /tmp/chef-cap-solo-#{rails_env}.rb -j /tmp/chef-cap-#{rails_env}-`hostname`.json #{debug_flag}"
 
     unless role_order.empty?
       role_order.each do |role, dependent_roles|

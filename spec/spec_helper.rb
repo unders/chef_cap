@@ -2,6 +2,8 @@ require "rubygems"
 require "rspec"
 require "json"
 
+ENV["QUIET"] = "true"
+
 require File.expand_path(File.join(File.dirname(__FILE__), "..", "recipes", "lib", "chef_dna_parser"))
 require File.expand_path(File.join(File.dirname(__FILE__), "..", "recipes", "lib", "chef_cap_helper"))
 require File.expand_path(File.join(File.dirname(__FILE__), "..", "recipes", "lib", "chef_cap_configuration"))
