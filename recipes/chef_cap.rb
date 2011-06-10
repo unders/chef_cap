@@ -139,7 +139,7 @@ else
   raise DnaConfigurationError, "Could not find cookbooks in JSON or as a subdirectory of where your JSON is!"
 end
 
-if ChefDnaParser.parsed["chef"] && ChefDnaParser.parsed["chef"]["root"]
+if ChefDnaParser.parsed["chef"] && ChefDnaParser.parsed["chef"]["version"]
   set :chef_version, ChefDnaParser.parsed["chef"]["version"]
 else
   default_chef_version = "0.9.16"
