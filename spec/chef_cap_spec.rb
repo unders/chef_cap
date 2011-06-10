@@ -365,7 +365,8 @@ describe "chef_cap" do
         @test_dna = <<-JS
         {
           "chef": {
-            "root": "path_to_cookbooks"
+            "root": "path_to_cookbooks",
+            "version": "0.1982.1234"
           },
           "environments": {
             "some_env": {
@@ -419,7 +420,7 @@ describe "chef_cap" do
             server_session.things_that_were_set["node_hash_for_localhost"].should == {
               "environments" => {"some_env"=>{ "rails_env" => "myenv",
                 "servers"=>[ {"hostname"=>"localhost", "roles"=>["role1", "role2"] }, {"hostname"=>"otherhost.com", "roles"=>["role1"]}]}},
-                "chef" => {"root"=>"path_to_cookbooks"},
+                "chef" => {"root"=>"path_to_cookbooks", "version"=>"0.1982.1234"},
                 "run_list" => ["foo", "bar"],
                 "environment" => {"rails_env" => "myenv", "servers"=>[ {"primary" => [], "hostname"=>"localhost", "roles"=>["role1", "role2"] },
                   {"primary" => [], "hostname"=>"otherhost.com", "roles"=>["role1"]}]},
@@ -472,7 +473,7 @@ describe "chef_cap" do
 
       it "sets up chef gem" do
         chef_cap.cap_servers.should_not be_empty
-        chef_cap.should_receive(:sudo).ordered.with("rvm default exec gem specification --version '>=0.9.12' chef 2>&1 | awk 'BEGIN { s = 0 } /^name:/ { s = 1; exit }; END { if(s == 0) exit 1 }' || sudo rvm default exec gem install chef --no-ri --no-rdoc && echo 'Chef Solo already on this server.'").and_return("mocked")
+        chef_cap.should_receive(:sudo).ordered.with("rvm default exec gem specification --version '>=0.1982.1234' chef 2>&1 | awk 'BEGIN { s = 0 } /^name:/ { s = 1; exit }; END { if(s == 0) exit 1 }' || sudo rvm default exec gem install chef --no-ri --no-rdoc && echo 'Chef Solo already on this server.'").and_return("mocked")
         chef_cap.should_receive(:sudo).ordered.with("rvm default exec which chef-solo").and_return("mocked")
         chef_cap.cap_task["chef:setup"].call
       end

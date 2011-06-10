@@ -139,10 +139,17 @@ else
   raise DnaConfigurationError, "Could not find cookbooks in JSON or as a subdirectory of where your JSON is!"
 end
 
+if ChefDnaParser.parsed["chef"] && ChefDnaParser.parsed["chef"]["root"]
+  set :chef_version, ChefDnaParser.parsed["chef"]["version"]
+else
+  default_chef_version = "0.9.16"
+  set :chef_version, default_chef_version
+end
+
 namespace :chef do
   desc "Setup chef solo on the server(s)"
   task :setup do
-    gem_check_for_chef_cmd = "gem specification --version '>=0.9.12' chef 2>&1 | awk 'BEGIN { s = 0 } /^name:/ { s = 1; exit }; END { if(s == 0) exit 1 }'"
+    gem_check_for_chef_cmd = "gem specification --version '>=#{chef_version}' chef 2>&1 | awk 'BEGIN { s = 0 } /^name:/ { s = 1; exit }; END { if(s == 0) exit 1 }'"
     install_chef_cmd = "sudo rvm default exec gem install chef --no-ri --no-rdoc"
     sudo "rvm default exec #{gem_check_for_chef_cmd} || #{install_chef_cmd} && echo 'Chef Solo already on this server.'"
     sudo "rvm default exec which chef-solo"
