@@ -473,8 +473,8 @@ describe "chef_cap" do
 
       it "sets up chef gem" do
         chef_cap.cap_servers.should_not be_empty
-        chef_cap.should_receive(:sudo).ordered.with("rvm default exec gem specification --version '>=0.1982.1234' chef 2>&1 | awk 'BEGIN { s = 0 } /^name:/ { s = 1; exit }; END { if(s == 0) exit 1 }' || sudo rvm default exec gem install chef --no-ri --no-rdoc && echo 'Chef Solo already on this server.'").and_return("mocked")
-        chef_cap.should_receive(:sudo).ordered.with("rvm default exec which chef-solo").and_return("mocked")
+        chef_cap.should_receive(:sudo).ordered.with("`cat /tmp/.chef_cap_rvm_path` default exec gem specification --version '>=0.1982.1234' chef 2>&1 | awk 'BEGIN { s = 0 } /^name:/ { s = 1; exit }; END { if(s == 0) exit 1 }' || sudo `cat /tmp/.chef_cap_rvm_path` default exec gem install chef --no-ri --no-rdoc && echo 'Chef Solo already on this server.'").and_return("mocked")
+        chef_cap.should_receive(:sudo).ordered.with("`cat /tmp/.chef_cap_rvm_path` default exec which chef-solo").and_return("mocked")
         chef_cap.cap_task["chef:setup"].call
       end
 

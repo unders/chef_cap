@@ -9,20 +9,26 @@ namespace :rvm do
     rvm_standup_script = <<-SH
       #!/bin/bash
       RVM_URL="https://rvm.beginrescueend.com/install/rvm"
-      export PATH=$PATH:/usr/local/rvm/bin
+      export PATH=$PATH:/usr/local/rvm/bin:~/.rvm/bin
       HAVE_RVM_ALREADY=`which rvm 2>/dev/null`
-      if [ ! -z $HAVE_RVM_ALREADY ]; then
-        echo "Looks like RVM is already on this machine. Skipping."
+      if [ $? -eq 0 ]; then
+        echo "Found RVM: " `which rvm`
+        echo "Looks like RVM is already on this machine. Recording to /tmp/.chef_cap_rvm_path"
+        which rvm > /tmp/.chef_cap_rvm_path
         exit 0
+      else
+        echo "Could not find RVM, PATH IS: ${PATH}"
+        echo "Going to attempt to attempt to download and install RVM from ${RVM_URL}"
       fi
 
       HAVE_CURL=`which curl 2>/dev/null`
-      if [ ! -z $HAVE_CURL ]; then
+      if [ $? -eq 0 ]; then
         RVM_TEMP_FILE=`mktemp /tmp/rvm_bootstrap.XXXXXX`
         curl $RVM_URL > $RVM_TEMP_FILE
         chmod u+rx $RVM_TEMP_FILE
         sh $RVM_TEMP_FILE
         rm -f $RVM_TEMP_FILE
+        which rvm > /tmp/.chef_cap_rvm_path
       else
         echo "FATAL ERROR: I have no idea how to download RVM without curl!"
         exit 1

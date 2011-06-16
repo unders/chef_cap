@@ -146,13 +146,15 @@ else
   set :chef_version, default_chef_version
 end
 
+set :rvm_bin_path, "/tmp/.chef_cap_rvm_path"
+
 namespace :chef do
   desc "Setup chef solo on the server(s)"
   task :setup do
     gem_check_for_chef_cmd = "gem specification --version '>=#{chef_version}' chef 2>&1 | awk 'BEGIN { s = 0 } /^name:/ { s = 1; exit }; END { if(s == 0) exit 1 }'"
-    install_chef_cmd = "sudo rvm default exec gem install chef --no-ri --no-rdoc"
-    sudo "rvm default exec #{gem_check_for_chef_cmd} || #{install_chef_cmd} && echo 'Chef Solo already on this server.'"
-    sudo "rvm default exec which chef-solo"
+    install_chef_cmd = "sudo `cat #{rvm_bin_path}` default exec gem install chef --no-ri --no-rdoc"
+    sudo "`cat #{rvm_bin_path}` default exec #{gem_check_for_chef_cmd} || #{install_chef_cmd} && echo 'Chef Solo already on this server.'"
+    sudo "`cat #{rvm_bin_path}` default exec which chef-solo"
   end
 
   desc "Run chef-solo on the server(s)"
@@ -198,7 +200,7 @@ namespace :chef do
 
   task :run_chef_solo do
     debug_flag = ENV['QUIET'] ? '' : '-l debug'
-    run_chef_solo = "env PATH=$PATH:/usr/sbin rvm default exec chef-solo -c /tmp/chef-cap-solo-#{rails_env}.rb -j /tmp/chef-cap-#{rails_env}-`hostname`.json #{debug_flag}"
+    run_chef_solo = "env PATH=$PATH:/usr/sbin `cat #{rvm_bin_path}` default exec chef-solo -c /tmp/chef-cap-solo-#{rails_env}.rb -j /tmp/chef-cap-#{rails_env}-`hostname`.json #{debug_flag}"
 
     unless role_order.empty?
       role_order.each do |role, dependent_roles|
