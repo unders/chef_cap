@@ -8,7 +8,7 @@ namespace :rvm do
   task :bootstrap do
     rvm_standup_script = <<-SH
       #!/bin/bash
-      RVM_URL="http://rvm.beginrescueend.com/releases/rvm-install-latest"
+      RVM_URL="https://rvm.beginrescueend.com/install/rvm"
       export PATH=$PATH:/usr/local/bin
       HAVE_RVM_ALREADY=`which rvm 2>/dev/null`
       if [ ! -z $HAVE_RVM_ALREADY ]; then
