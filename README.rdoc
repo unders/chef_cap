@@ -52,6 +52,12 @@ Run chef without deploy
 
   $ cap <environment> cook
 
+Deploy a particular Git branch, tag, or revision (overriding the default)
+
+  $ cap <environment> deploy BRANCH=my_branch
+  $ cap <environment> deploy TAG=my_tag
+  $ cap <environment> deploy REVISION=abc1234
+
 === chef/node.json
 
 The following JSON keys are required in your node.json file:
