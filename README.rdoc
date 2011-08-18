@@ -56,16 +56,16 @@ Run chef without deploy
 
 The following JSON keys are required in your node.json file:
 
-{ "application": { "name": NAME } }
-{ "application": { "repository": REPOSITORY } }
-{ "environments": { ENVIRONMENT: { "rails_env": RAILS_ENV } } }
-{ "roles": { ROLE: { "run_list": [] } } }
-{ "run_list": [] }
+  { "application": { "name": NAME } }
+  { "application": { "repository": REPOSITORY } }
+  { "environments": { ENVIRONMENT: { "rails_env": RAILS_ENV } } }
+  { "roles": { ROLE: { "run_list": [] } } }
+  { "run_list": [] }
 
 Optional JSON keys:
 
-{ "environments": { ENVIRONMENT: { "role_order": { FIRST_ROLE: [OTHER_ROLES] } } } }
-{ "environments": { ENVIRONMENT: { "environment_settings": ENV_HASH } } }
+  { "environments": { ENVIRONMENT: { "role_order": { FIRST_ROLE: [OTHER_ROLES] } } } }
+  { "environments": { ENVIRONMENT: { "environment_settings": ENV_HASH } } }
 
 
 == REQUIREMENTS
