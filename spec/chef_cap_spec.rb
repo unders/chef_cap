@@ -422,7 +422,7 @@ describe "chef_cap" do
                 "servers"=>[ {"hostname"=>"localhost", "roles"=>["role1", "role2"] }, {"hostname"=>"otherhost.com", "roles"=>["role1"]}]}},
                 "chef" => {"root"=>"path_to_cookbooks", "version"=>"0.1982.1234"},
                 "run_list" => ["foo", "bar"],
-                "environment" => {"rails_env" => "myenv", "servers"=>[ {"primary" => [], "hostname"=>"localhost", "roles"=>["role1", "role2"] },
+                "environment" => {"rails_env" => "myenv", "roles" => ["role1", "role2"], "servers"=>[ {"primary" => [], "hostname"=>"localhost", "roles"=>["role1", "role2"] },
                   {"primary" => [], "hostname"=>"otherhost.com", "roles"=>["role1"]}]},
                   "roles" => {"role1" => {"run_list"=>["foo"]}, "role2"=>{"run_list"=>["foo", "bar"]}}}
           elsif server_session.things_that_were_set.keys.include? "node_hash_for_otherhost"
@@ -431,7 +431,7 @@ describe "chef_cap" do
                 "servers"=>[{"hostname"=>"localhost", "roles"=>["role1", "role2"]}, {"hostname"=>"otherhost.com", "roles"=>["role1"]}]}},
                 "chef"=>{"root"=>"path_to_cookbooks"},
                 "run_list"=>["foo"],
-                "environment"=>{"rails_env" => "myenv", "servers"=>[{"primary" => [], "hostname"=>"localhost", "roles"=>["role1", "role2"]},
+                "environment"=>{"rails_env" => "myenv", "roles" => ["role1"], "servers"=>[{"primary" => [], "hostname"=>"localhost", "roles"=>["role1", "role2"]},
                   {"primary" => [], "hostname"=>"otherhost.com", "roles"=>["role1"]}]},
                   "roles"=>{"role1"=>{"run_list"=>["foo"]}, "role2"=>{"run_list"=>["foo", "bar"]}}}
           end
@@ -757,7 +757,8 @@ describe "chef_cap" do
           if server_session.things_that_were_set.keys.include? "node_hash_for_localhost"
             server_session.things_that_were_set["node_hash_for_localhost"]["environment"].should == {"some_default"=>"yes",
               "something_else"=>"okay",
-              "servers"=>[{"primary" => [], "hostname"=>"localhost", "roles"=>["role1", "role2"]}]}
+              "servers"=>[{"primary" => [], "hostname"=>"localhost", "roles"=>["role1", "role2"]}],
+              "roles" => []}
           end
         end
       end
@@ -905,12 +906,18 @@ describe "chef_cap" do
         server_session.stub!(:put => "stubbed")
         server_session.stub!(:sudo => "stubbed")
         server_session.should_receive(:set).with("node_hash_for_localhost",
-                                                 {"environments" => { "some_env"=>{"servers"=>[{"hostname"=>"localhost", "roles"=>["role1", "role2"]}]}},
-                                                   "something"=>"other", "foo"=>"bar",
-                                                   "chef"=>{"root"=>"path_to_cookbooks"},
-                                                   "run_list"=>nil, "shared"=>{"foo"=>"bar"},
-                                                   "environment"=> {"revision"=>"123", "branch" => "somebranch", "servers"=>[{"primary" => [], "hostname"=>"localhost", "roles"=>["role1", "role2"]}]}, "roles"=>{"role1"=>{"something"=>"other"}}}
-                                                )
+          {
+          "chef"=>{"root"=>"path_to_cookbooks"},
+          "environments" => { "some_env"=>{"servers"=>[{"hostname"=>"localhost", "roles"=>["role1", "role2"]}]}},
+          "shared"=>{"foo"=>"bar"},
+          "foo"=>"bar",
+          "something"=>"other",
+          "environment"=> {"revision"=>"123", "branch" => "somebranch",
+            "roles" => ["role1"],
+            "servers"=>[{"primary" => [], "hostname"=>"localhost", "roles"=>["role1", "role2"]}]},
+            "roles"=>{"role1"=>{"something"=>"other"}},
+          "run_list"=>nil
+        })
       }
       chef_cap.cap_task["chef:deploy"].call
     end

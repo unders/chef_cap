@@ -183,6 +183,7 @@ namespace :chef do
         json_to_modify["environment"] ||= json_to_modify["environments"]["defaults"] || {} rescue {}
         env_settings.each { |k, v| ChefCapHelper.recursive_merge(json_to_modify["environment"] || {}, k, v) }
 
+        json_to_modify["environment"]["roles"] = roles_for_host
         json_to_modify["environment"]["revision"] = ChefCapHelper.set_revision if ChefCapHelper.has_revision?
         json_to_modify["environment"]["branch"] = ChefCapHelper.set_branch if ChefCapHelper.has_branch?
         json_to_modify["environment"]["servers"] = ChefCapHelper.intialize_primary_values(json_to_modify["environment"]["servers"])
@@ -193,7 +194,7 @@ namespace :chef do
         set "node_hash_for_#{channel[:host].gsub(/\./, "_")}", json_to_modify
         put json_to_modify.to_json, "/tmp/chef-cap-#{rails_env}-#{channel[:host]}.json", :mode => "0600"
       end
-      end
+    end
 
     chef.run_chef_solo
   end
