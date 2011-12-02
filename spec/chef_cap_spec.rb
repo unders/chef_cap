@@ -565,6 +565,109 @@ describe "chef_cap" do
           chef_cap.cap_task["chef:run_chef_solo"].call
         end
       end
+
+      context "with multiple dependent roles" do
+        before do
+          @test_dna = <<-JS
+        {
+          "chef": {
+            "root": "path_to_cookbooks"
+          },
+          "environments": {
+            "some_env": {
+              "rails_env": "myenv",
+              "role_order": { "dep0": ["dep1", "dep2"], "dep1": ["dep3"] },
+               "servers": [
+                {
+                  "hostname": "dep0host",
+                  "roles": ["dep0"]
+                },
+                {
+                  "hostname": "dep1host",
+                  "roles": ["dep1"]
+                },
+                {
+                  "hostname": "dep2host",
+                  "roles": ["dep2"]
+                },
+                {
+                  "hostname": "dep3host",
+                  "roles": ["dep3"]
+                }
+              ]
+            }
+          },
+          "roles": {
+            "dep0": { "run_list": [] },
+            "dep1": { "run_list": [] },
+            "dep2": { "run_list": [] },
+            "dep3": { "run_list": [] }
+          }
+        }
+          JS
+
+          chef_cap.cap_task[:some_env].should_not be_nil
+          chef_cap.cap_task[:some_env].call
+        end
+
+        it "invokes chef-solo on dep0 then dep1 and dep2 then finally dep3" do
+          chef_cap.cap_servers.should_not be_empty
+
+          chef_cap.should_receive(:sudo).ordered.with(anything, :hosts => ["dep0host"]).and_return("mocked")
+          chef_cap.should_receive(:sudo).ordered.with(anything, :hosts => ["dep1host", "dep2host"]).and_return("mocked")
+          chef_cap.should_receive(:sudo).ordered.with(anything, :hosts => ["dep3host"]).and_return("mocked")
+          chef_cap.cap_task["chef:run_chef_solo"].call
+        end
+
+      end
+
+      context "with multiple roles where some required role host is missing" do
+        before do
+          @test_dna = <<-JS
+        {
+          "chef": {
+            "root": "path_to_cookbooks"
+          },
+          "environments": {
+            "defaults": {
+              "role_order": { "dep0": ["dep1"], "dep1": ["dep2", "dep3"] }
+            },
+            "some_env": {
+              "rails_env": "myenv",
+               "servers": [
+                {
+                  "hostname": "dep0host",
+                  "roles": ["dep0"]
+                },
+                {
+                  "hostname": "dep2host",
+                  "roles": ["dep2", "dep3"]
+                }
+              ]
+            }
+          },
+          "roles": {
+            "dep0": { "run_list": [] },
+            "dep1": { "run_list": [] },
+            "dep2": { "run_list": [] },
+            "dep3": { "run_list": [] }
+          }
+        }
+          JS
+
+          chef_cap.cap_task[:some_env].should_not be_nil
+          chef_cap.cap_task[:some_env].call
+        end
+
+        it "invokes chef-solo on dep0 then dep1 and dep2 then finally dep3" do
+          chef_cap.cap_servers.should_not be_empty
+
+          chef_cap.should_receive(:sudo).ordered.with(anything, :hosts => ["dep0host"]).and_return("mocked")
+          chef_cap.should_receive(:sudo).ordered.with(anything, :hosts => ["dep2host"]).and_return("mocked")
+          chef_cap.cap_task["chef:run_chef_solo"].call
+        end
+
+      end
     end
 
     describe "merging roles with shared" do

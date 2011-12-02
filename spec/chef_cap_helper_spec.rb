@@ -12,6 +12,7 @@ describe ChefCapHelper do
 
       context "given a prefix" do
         it "should call itself recursively" do
+          @configuration.should_receive(:set).with(:prefix_somehash, {"somekey" => "somevalue"})
           @configuration.should_receive(:set).with(:prefix_somehash_somekey, "somevalue")
           ChefCapHelper.parse_hash({"somehash" => {"somekey" => "somevalue"}}, "prefix")
         end
@@ -19,6 +20,7 @@ describe ChefCapHelper do
 
       context "given no prefix" do
         it "should call itself recursively" do
+          @configuration.should_receive(:set).with(:somehash, {"somekey" => "somevalue"})
           @configuration.should_receive(:set).with(:somehash_somekey, "somevalue")
           ChefCapHelper.parse_hash({"somehash" => {"somekey" => "somevalue"}})
         end

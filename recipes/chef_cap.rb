@@ -32,7 +32,12 @@ if ChefDnaParser.parsed["environments"]
     task environment.to_sym do
       set :environment_settings, environment_hash
       set :rails_env, environment_hash["rails_env"] || environment
-      set :role_order, environment_hash["role_order"] || {}
+      if environment_hash["role_order"]
+        set :role_order, environment_hash["role_order"]
+      else
+        set(:role_order, {}) unless defined?(role_order)
+      end
+
       default_environment["RAILS_ENV"] = rails_env
 
       ChefCapHelper.parse_hash(environment_hash)
@@ -203,13 +208,20 @@ namespace :chef do
     debug_flag = ENV['QUIET'] ? '' : '-l debug'
     run_chef_solo = "env PATH=$PATH:/usr/sbin `cat #{rvm_bin_path}` default exec chef-solo -c /tmp/chef-cap-solo-#{rails_env}.rb -j /tmp/chef-cap-#{rails_env}-`hostname`.json #{debug_flag}"
 
+    hosts_that_have_run = []
     unless role_order.empty?
       role_order.each do |role, dependent_roles|
-        role_hosts = find_servers(:roles => [role.to_sym]).map(&:host)
-        dependent_hosts = find_servers(:roles => dependent_roles.map(&:to_sym)).map(&:host) - role_hosts
+        role_hosts = (find_servers(:roles => [role.to_sym]).map(&:host) - hosts_that_have_run).uniq
+        dependent_hosts = (find_servers(:roles => dependent_roles.map(&:to_sym)).map(&:host) - role_hosts - hosts_that_have_run).uniq
 
-        sudo(run_chef_solo, :hosts => role_hosts) if role_hosts.any?
-        sudo(run_chef_solo, :hosts => dependent_hosts) if dependent_hosts.any?
+        if role_hosts.any?
+          sudo(run_chef_solo, :hosts => role_hosts)
+          hosts_that_have_run += role_hosts
+        end
+        if dependent_hosts.any?
+          sudo(run_chef_solo, :hosts => dependent_hosts)
+          hosts_that_have_run += dependent_hosts
+        end
       end
     else
       sudo(run_chef_solo)

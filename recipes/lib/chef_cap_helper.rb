@@ -6,17 +6,18 @@ class ChefCapHelper
 
     def parse_hash(hash, prefix = nil)
       hash.each do |key, value|
+        key = [prefix, key].compact.join("_").to_sym
         if value.is_a? Hash
-          parse_hash(value, [prefix, key].compact.join("_"))
+          parse_hash(value, key)
+        end
+        next if key == :ssh_options # skip restricted variables
+
+        unless value.nil?
+          debug("Setting #{key.inspect} => #{value.inspect}")
+          ChefCapConfiguration.configuration.set key, value
         else
-          key = [prefix, key].compact.join("_").to_sym
-          unless value.nil?
-            debug("Setting #{key.inspect} => #{value.inspect}")
-            ChefCapConfiguration.configuration.set key, value
-          else
-            debug("Unsetting #{key.inspect} => #{value.inspect}")
-            ChefCapConfiguration.configuration.unset key
-          end
+          debug("Unsetting #{key.inspect} => #{value.inspect}")
+          ChefCapConfiguration.configuration.unset key
         end
       end
     end

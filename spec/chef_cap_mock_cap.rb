@@ -17,8 +17,6 @@ def find_servers(options = {})
       @servers[role][:servers].each do |server|
         servers << TestCapServer.new(server)
       end
-    else
-      raise ArgumentError, "unknown role `#{role}'" unless roles.include?(role)
     end
   end
   servers
@@ -67,7 +65,7 @@ def roles
         role_klass.instance_eval(<<-EOS)
           def servers
             role_servers = []
-            #{cap_role[key.to_sym][:servers].inspect}.each do |server_hostname|
+            #{(cap_role[key.to_sym] || {})[:servers].inspect}.each do |server_hostname|
               host = TestCapServer.new
               host.instance_eval(<<-EOH)
                 def host
